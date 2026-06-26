@@ -1,0 +1,58 @@
+/* This file is where css selectors for the component go.
+   There will be hard coded properties and properties controlled by variables, for example
+
+   my-dropdown-with-chart .my-dropdown-with-chart-value-text {
+   color: var(--my-dropdown-with-chart-value-text-color);
+   display: inline-block;
+	 }
+*/
+
+my-dropdown-with-chart:not(.oj-complete){
+  visibility: hidden;
+}
+
+my-dropdown-with-chart{
+	display: block;
+	min-height: 50px;
+	width: 100%;
+	overflow-x: auto;
+}
+
+my-dropdown-with-chart[hidden]
+{
+  display: none;
+}
+
+my-dropdown-with-chart .my-dropdown-with-chart {
+	width: 100%;
+}
+
+my-dropdown-with-chart .my-dropdown-with-chart-toolbar {
+	align-items: center;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1rem;
+}
+
+my-dropdown-with-chart .my-dropdown-with-chart-selector {
+	max-width: 240px;
+	width: 100%;
+}
+
+my-dropdown-with-chart .my-dropdown-with-chart-grid {
+	display: grid;
+	gap: 1.5rem;
+	grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+	width: 100%;
+}
+
+my-dropdown-with-chart .my-dropdown-with-chart-chart {
+	height: 420px;
+	min-width: 0;
+	width: 100%;
+}
+
+my-dropdown-with-chart .my-dropdown-with-chart-mobile-lock .my-dropdown-with-chart-grid {
+	grid-template-columns: repeat(2, minmax(320px, 1fr));
+	min-width: 680px;
+}

@@ -1,0 +1,2 @@
+define(['exports', './collectionUtils-3951928f', './clientHints-6d361eaa'], (function(t,e,n){"use strict";const o=(t,n,o,l,a,r)=>{let c;if(c="data"===r?.type?r.rowKey:e.keyExtractor(o,`[${l}='${t}']`),null!=c)for(let t=0;t<n.length;t++){const e=n[t];if(c===e.metadata.key)return a(t,c,e.data)}};t.getRowActionGestureContext=o,t.handleRowActionGesture=(t,e,n,l,a,r,c)=>{const i=o(t,e,l,a,r,c);return null!=i&&(n({context:i,target:l}),!0)},t.isLogicalCtrl=t=>"mac"===n.getClientHints().platform?t.metaKey:t.ctrlKey}));
+//# sourceMappingURL=EventUtils-c53ccd16.js.map
