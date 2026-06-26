@@ -3,112 +3,194 @@
  Licensed under The Universal Permissive License (UPL), Version 1.0
  as shown at https://oss.oracle.com/licenses/upl/
  -->
-<div class="oj-hybrid-padding">
+<div class="oj-hybrid-padding stock-page">
   <h1>Stock</h1>
 
-  <oj-toolbar id="stockToolbar" aria-label="Stock toolbar" class="oj-sm-margin-4x-bottom">
-    <oj-button id="addItemButton" on-oj-action="[[openAddItemDialog]]">
-      <span slot="startIcon" class="oj-ux-ico-plus"></span>
-      Add Item
-    </oj-button>
-  </oj-toolbar>
-
-  <div class="oj-flex oj-sm-align-items-flex-end oj-sm-margin-4x-bottom">
-    <div class="oj-flex-item oj-sm-12 oj-md-6 oj-sm-padding-2x-end">
-      <oj-input-text
-        id="stockSearch"
-        label-hint="Search stock"
-        value="{{searchInput}}"
-        on-raw-value-changed="[[handleSearchInputChanged]]"
-        on-keydown="[[handleSearchKeydown]]"
-        clear-icon="always"
-        class="oj-sm-width-full">
-      </oj-input-text>
-    </div>
-    <div class="oj-flex-item">
-      <oj-button id="searchButton" on-oj-action="[[applySearch]]">
-        <span slot="startIcon" class="oj-ux-ico-search"></span>
-        Search
-      </oj-button>
-      <oj-button id="clearSearchButton" on-oj-action="[[clearSearch]]">
-        Clear
-      </oj-button>
-    </div>
+  <div class="stock-control-row">
+    <label for="stockAction">Action</label>
+    <select
+      id="stockAction"
+      data-bind="options: actionOptions,
+                 optionsText: 'label',
+                 optionsValue: 'value',
+                 value: selectedAction,
+                 event: { change: selectAction }">
+    </select>
   </div>
 
-  <oj-table
-    id="stockTable"
-    aria-label="Stock table"
-    data="[[itemsDataProvider]]"
-    columns="[[columns]]"
-    display="grid"
-    class="oj-sm-width-full">
-    <template slot="actionsTemplate" data-oj-as="cell">
-      <oj-button
-        chroming="borderless"
-        on-oj-action="[[$parent.editItem.bind($parent, cell.item.data.id)]]">
-        Edit
-      </oj-button>
-      <oj-button
-        chroming="borderless"
-        on-oj-action="[[$parent.deleteItem.bind($parent, cell.item.data.id)]]">
-        Delete
-      </oj-button>
-    </template>
-  </oj-table>
+  <div class="stock-message stock-message-success" data-bind="visible: hasStatus, text: statusMessage"></div>
+  <div class="stock-message stock-message-error" data-bind="visible: hasError, text: errorMessage"></div>
 
-  <oj-dialog id="stockItemDialog" dialog-title="[[dialogTitle]]" cancel-behavior="icon">
-    <div slot="body">
-      <oj-validation-group id="stockItemFormValidation">
-        <oj-form-layout max-columns="2" direction="row">
-          <oj-input-text
-            id="itemName"
-            label-hint="Name"
-            value="{{form.name}}"
-            required="true">
-          </oj-input-text>
+  <section data-bind="visible: selectedAction() === 'list'">
+    <h2>List</h2>
+    <p data-bind="visible: items().length === 0">No stock items available.</p>
+    <table class="stock-table" data-bind="visible: items().length > 0">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Category</th>
+          <th>Quantity</th>
+          <th>Minimum</th>
+          <th>Location</th>
+        </tr>
+      </thead>
+      <tbody data-bind="foreach: items">
+        <tr>
+          <td data-bind="text: id"></td>
+          <td data-bind="text: name"></td>
+          <td data-bind="text: category"></td>
+          <td data-bind="text: quantity"></td>
+          <td data-bind="text: minimumStock"></td>
+          <td data-bind="text: location"></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
 
-          <oj-input-text
-            id="itemCategory"
-            label-hint="Category"
-            value="{{form.category}}"
-            required="true">
-          </oj-input-text>
-
-          <oj-input-number
-            id="itemQuantity"
-            label-hint="Quantity"
-            value="{{form.quantity}}"
-            min="0"
-            step="1"
-            required="true">
-          </oj-input-number>
-
-          <oj-input-number
-            id="itemMinimumStock"
-            label-hint="Minimum Stock"
-            value="{{form.minimumStock}}"
-            min="0"
-            step="1"
-            required="true">
-          </oj-input-number>
-
-          <oj-input-text
-            id="itemLocation"
-            label-hint="Location"
-            value="{{form.location}}">
-          </oj-input-text>
-        </oj-form-layout>
-      </oj-validation-group>
+  <section data-bind="visible: selectedAction() === 'create'">
+    <h2>Create</h2>
+    <div class="stock-form-grid">
+      <label>
+        Name
+        <input type="text" data-bind="value: createForm.name">
+      </label>
+      <label>
+        Category
+        <input type="text" data-bind="value: createForm.category">
+      </label>
+      <label>
+        Quantity
+        <input type="number" min="0" step="1" data-bind="value: createForm.quantity">
+      </label>
+      <label>
+        Minimum Stock
+        <input type="number" min="0" step="1" data-bind="value: createForm.minimumStock">
+      </label>
+      <label>
+        Location
+        <input type="text" data-bind="value: createForm.location">
+      </label>
     </div>
-
-    <div slot="footer">
-      <oj-button id="cancelItemButton" on-oj-action="[[closeItemDialog]]">
-        Cancel
-      </oj-button>
-      <oj-button id="saveItemButton" chroming="callToAction" on-oj-action="[[saveItem]]">
-        Save
-      </oj-button>
+    <div class="stock-button-row">
+      <button type="button" data-bind="click: createItem">Create Item</button>
+      <button type="button" data-bind="click: resetCreateForm">Clear</button>
     </div>
-  </oj-dialog>
+  </section>
+
+  <section data-bind="visible: selectedAction() === 'findById'">
+    <h2>Find by ID</h2>
+    <div class="stock-search-row">
+      <label for="findByIdInput">Item ID</label>
+      <input id="findByIdInput" type="text" placeholder="ITM-001" data-bind="value: findByIdQuery">
+      <button type="button" data-bind="click: findById">Find</button>
+    </div>
+    <div data-bind="if: foundByIdItem">
+      <div data-bind="template: { name: 'stockItemCardTemplate', data: foundByIdItem() }"></div>
+    </div>
+  </section>
+
+  <section data-bind="visible: selectedAction() === 'findByName'">
+    <h2>Find by Name</h2>
+    <div class="stock-search-row">
+      <label for="findByNameInput">Item Name</label>
+      <input id="findByNameInput" type="text" placeholder="Laptop" data-bind="value: findByNameQuery">
+      <button type="button" data-bind="click: findByName">Find</button>
+    </div>
+    <div data-bind="visible: hasFoundByNameItems">
+      <table class="stock-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Category</th>
+            <th>Quantity</th>
+            <th>Minimum</th>
+            <th>Location</th>
+          </tr>
+        </thead>
+        <tbody data-bind="foreach: foundByNameItems">
+          <tr>
+            <td data-bind="text: id"></td>
+            <td data-bind="text: name"></td>
+            <td data-bind="text: category"></td>
+            <td data-bind="text: quantity"></td>
+            <td data-bind="text: minimumStock"></td>
+            <td data-bind="text: location"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section data-bind="visible: selectedAction() === 'update'">
+    <h2>Update</h2>
+    <div class="stock-search-row">
+      <label for="updateIdInput">Item ID</label>
+      <input id="updateIdInput" type="text" placeholder="ITM-001" data-bind="value: updateIdQuery">
+      <button type="button" data-bind="click: loadUpdateItem">Load</button>
+    </div>
+    <div data-bind="if: updateLoadedItem">
+      <p>Editing <strong data-bind="text: updateLoadedItem().id"></strong></p>
+      <div class="stock-form-grid">
+        <label>
+          Name
+          <input type="text" data-bind="value: updateForm.name">
+        </label>
+        <label>
+          Category
+          <input type="text" data-bind="value: updateForm.category">
+        </label>
+        <label>
+          Quantity
+          <input type="number" min="0" step="1" data-bind="value: updateForm.quantity">
+        </label>
+        <label>
+          Minimum Stock
+          <input type="number" min="0" step="1" data-bind="value: updateForm.minimumStock">
+        </label>
+        <label>
+          Location
+          <input type="text" data-bind="value: updateForm.location">
+        </label>
+      </div>
+      <div class="stock-button-row">
+        <button type="button" data-bind="click: updateItem">Update Item</button>
+      </div>
+    </div>
+  </section>
+
+  <section data-bind="visible: selectedAction() === 'delete'">
+    <h2>Delete</h2>
+    <div class="stock-search-row">
+      <label for="deleteIdInput">Item ID</label>
+      <input id="deleteIdInput" type="text" placeholder="ITM-001" data-bind="value: deleteIdQuery">
+      <button type="button" data-bind="click: loadDeleteItem">Find</button>
+    </div>
+    <div data-bind="if: deleteCandidate">
+      <div data-bind="template: { name: 'stockItemCardTemplate', data: deleteCandidate() }"></div>
+      <div class="stock-button-row">
+        <button type="button" class="stock-danger-button" data-bind="click: deleteItem">Delete Item</button>
+      </div>
+    </div>
+  </section>
+
+  <script type="text/html" id="stockItemCardTemplate">
+    <div class="stock-result">
+      <dl>
+        <dt>ID</dt>
+        <dd data-bind="text: id"></dd>
+        <dt>Name</dt>
+        <dd data-bind="text: name"></dd>
+        <dt>Category</dt>
+        <dd data-bind="text: category"></dd>
+        <dt>Quantity</dt>
+        <dd data-bind="text: quantity"></dd>
+        <dt>Minimum Stock</dt>
+        <dd data-bind="text: minimumStock"></dd>
+        <dt>Location</dt>
+        <dd data-bind="text: location"></dd>
+      </dl>
+    </div>
+  </script>
 </div>

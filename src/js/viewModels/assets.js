@@ -9,54 +9,96 @@ define([
     'knockout',
     '../accUtils',
     '../data/mockData',
-    'ojs/ojarraydataprovider',
-    'ojs/ojknockout',
-    'ojs/ojtable',
-    'ojs/ojbutton',
-    'ojs/ojtoolbar',
-    'ojs/ojdialog',
-    'ojs/ojformlayout',
-    'ojs/ojvalidationgroup',
-    'ojs/ojinputtext',
-    'ojs/ojinputnumber'
+    'ojs/ojknockout'
   ],
-  function (ko, accUtils, mockData, ArrayDataProvider) {
+  function (ko, accUtils, mockData) {
     function AssetsViewModel() {
-      const buildRows = () => {
-        const searchValue = this.searchText ? this.searchText().trim().toLowerCase() : '';
-        return mockData.getItems().filter((item) => {
-          if (!searchValue) {
-            return true;
-          }
-          return [
-            item.id,
-            item.name,
-            item.category,
-            item.location
-          ].some((value) => String(value || '').toLowerCase().includes(searchValue));
+      const sortById = (left, right) => {
+        return String(left.id || '').localeCompare(String(right.id || ''), undefined, {
+          numeric: true,
+          sensitivity: 'base'
         });
       };
 
-      this.searchInput = ko.observable('');
-      this.searchText = ko.observable('');
-      this.items = ko.observableArray(buildRows());
-      this.itemsDataProvider = new ArrayDataProvider(this.items, {
-        keyAttributes: 'id'
+      const blankForm = () => ({
+        name: '',
+        category: '',
+        quantity: 0,
+        minimumStock: 0,
+        location: ''
       });
 
-      this.columns = [
-        { headerText: 'ID', field: 'id' },
-        { headerText: 'Name', field: 'name' },
-        { headerText: 'Category', field: 'category' },
-        { headerText: 'Quantity', field: 'quantity' },
-        { headerText: 'Minimum', field: 'minimumStock' },
-        { headerText: 'Location', field: 'location' },
-        { headerText: 'Actions', template: 'actionsTemplate', sortable: 'disabled' }
+      const copyItem = (item) => Object.assign({}, item);
+
+      const normalizeId = (id) => String(id || '').trim().toUpperCase();
+
+      const normalizeName = (name) => String(name || '').trim().toLowerCase();
+
+      const getSortedItems = () => {
+        return mockData.getItems().slice().sort(sortById);
+      };
+
+      const buildPayload = (form) => {
+        const quantityValue = String(form.quantity() ?? '').trim();
+        const minimumStockValue = String(form.minimumStock() ?? '').trim();
+        return {
+          name: String(form.name() || '').trim(),
+          category: String(form.category() || '').trim(),
+          quantity: quantityValue === '' ? NaN : Number(quantityValue),
+          minimumStock: minimumStockValue === '' ? NaN : Number(minimumStockValue),
+          location: String(form.location() || '').trim()
+        };
+      };
+
+      const resetForm = (form, values) => {
+        const source = Object.assign(blankForm(), values || {});
+        form.name(source.name);
+        form.category(source.category);
+        form.quantity(source.quantity);
+        form.minimumStock(source.minimumStock);
+        form.location(source.location);
+      };
+
+      const validatePayload = (payload) => {
+        if (!payload.name) {
+          return 'Name is required.';
+        }
+        if (!payload.category) {
+          return 'Category is required.';
+        }
+        if (!Number.isFinite(payload.quantity) || payload.quantity < 0) {
+          return 'Quantity must be a number greater than or equal to 0.';
+        }
+        if (!Number.isInteger(payload.quantity)) {
+          return 'Quantity must be a whole number.';
+        }
+        if (!Number.isFinite(payload.minimumStock) || payload.minimumStock < 0) {
+          return 'Minimum stock must be a number greater than or equal to 0.';
+        }
+        if (!Number.isInteger(payload.minimumStock)) {
+          return 'Minimum stock must be a whole number.';
+        }
+        if (!payload.location) {
+          return 'Location is required.';
+        }
+        return '';
+      };
+
+      this.actionOptions = [
+        { value: 'list', label: 'List' },
+        { value: 'create', label: 'Create' },
+        { value: 'findById', label: 'Find by ID' },
+        { value: 'findByName', label: 'Find by Name' },
+        { value: 'update', label: 'Update' },
+        { value: 'delete', label: 'Delete' }
       ];
 
-      this.dialogTitle = ko.observable('Add Item');
-      this.editingItemId = ko.observable(null);
-      this.form = {
+      this.selectedAction = ko.observable('list');
+      this.items = ko.observableArray([]);
+      this.statusMessage = ko.observable('');
+      this.errorMessage = ko.observable('');
+
+      this.createForm = {
         name: ko.observable(''),
         category: ko.observable(''),
         quantity: ko.observable(0),
@@ -64,105 +106,159 @@ define([
         location: ko.observable('')
       };
 
+      this.findByIdQuery = ko.observable('');
+      this.foundByIdItem = ko.observable(null);
+
+      this.findByNameQuery = ko.observable('');
+      this.foundByNameItems = ko.observableArray([]);
+
+      this.updateIdQuery = ko.observable('');
+      this.updateLoadedItem = ko.observable(null);
+      this.updateForm = {
+        name: ko.observable(''),
+        category: ko.observable(''),
+        quantity: ko.observable(0),
+        minimumStock: ko.observable(0),
+        location: ko.observable('')
+      };
+
+      this.deleteIdQuery = ko.observable('');
+      this.deleteCandidate = ko.observable(null);
+
+      this.hasStatus = ko.pureComputed(() => !!this.statusMessage());
+      this.hasError = ko.pureComputed(() => !!this.errorMessage());
+      this.hasFoundByNameItems = ko.pureComputed(() => this.foundByNameItems().length > 0);
+
       this.refreshItems = () => {
-        this.items(buildRows());
+        this.items(getSortedItems());
       };
 
-      this.applySearch = () => {
-        this.searchText(this.searchInput());
+      this.clearMessages = () => {
+        this.statusMessage('');
+        this.errorMessage('');
+      };
+
+      this.selectAction = () => {
+        this.clearMessages();
+        this.foundByIdItem(null);
+        this.foundByNameItems([]);
+        this.updateLoadedItem(null);
+        this.deleteCandidate(null);
         this.refreshItems();
       };
 
-      this.clearSearch = () => {
-        this.searchInput('');
-        this.searchText('');
-        this.refreshItems();
+      this.resetCreateForm = () => {
+        resetForm(this.createForm);
       };
 
-      this.handleSearchInputChanged = (event) => {
-        this.searchInput(event.detail.value || '');
-      };
-
-      this.handleSearchKeydown = (event) => {
-        if (event.key === 'Enter') {
-          this.applySearch();
-        }
-        return true;
-      };
-
-      this.resetForm = () => {
-        this.editingItemId(null);
-        this.form.name('');
-        this.form.category('');
-        this.form.quantity(0);
-        this.form.minimumStock(0);
-        this.form.location('');
-      };
-
-      this.populateForm = (item) => {
-        this.editingItemId(item.id);
-        this.form.name(item.name || '');
-        this.form.category(item.category || '');
-        this.form.quantity(item.quantity || 0);
-        this.form.minimumStock(item.minimumStock || 0);
-        this.form.location(item.location || '');
-      };
-
-      this.openItemDialog = () => {
-        document.getElementById('stockItemDialog').open();
-      };
-
-      this.closeItemDialog = () => {
-        document.getElementById('stockItemDialog').close();
-      };
-
-      this.buildPayload = () => {
-        return {
-          name: this.form.name(),
-          category: this.form.category(),
-          quantity: this.form.quantity(),
-          minimumStock: this.form.minimumStock(),
-          location: this.form.location()
-        };
-      };
-
-      this.openAddItemDialog = () => {
-        this.dialogTitle('Add Item');
-        this.resetForm();
-        this.openItemDialog();
-      };
-
-      this.editItem = (itemId) => {
-        const item = mockData.getItemById(itemId);
-        if (item) {
-          this.dialogTitle('Edit Item');
-          this.populateForm(item);
-          this.openItemDialog();
-        }
-      };
-
-      this.saveItem = () => {
-        const validationGroup = document.getElementById('stockItemFormValidation');
-        if (validationGroup.valid !== 'valid') {
-          validationGroup.showMessages();
-          validationGroup.focusOn('@firstInvalidShown');
+      this.createItem = () => {
+        this.clearMessages();
+        const payload = buildPayload(this.createForm);
+        const validationMessage = validatePayload(payload);
+        if (validationMessage) {
+          this.errorMessage(validationMessage);
           return;
         }
 
-        const itemId = this.editingItemId();
-        const payload = this.buildPayload();
-        if (itemId) {
-          mockData.updateItem(itemId, payload);
-        } else {
-          mockData.addItem(payload);
-        }
+        const createdItem = mockData.addItem(payload);
         this.refreshItems();
-        this.closeItemDialog();
+        this.resetCreateForm();
+        this.statusMessage('Created item ' + createdItem.id + '.');
       };
 
-      this.deleteItem = (itemId) => {
-        mockData.deleteItem(itemId);
+      this.findById = () => {
+        this.clearMessages();
+        const id = normalizeId(this.findByIdQuery());
+        const item = id ? mockData.getItemById(id) : null;
+        this.foundByIdItem(item ? copyItem(item) : null);
+        if (!item) {
+          this.errorMessage('No item found for ID ' + (id || '(blank)') + '.');
+        }
+      };
+
+      this.findByName = () => {
+        this.clearMessages();
+        const name = normalizeName(this.findByNameQuery());
+        const matches = name
+          ? mockData.getItems().filter((item) => normalizeName(item.name) === name).sort(sortById)
+          : [];
+        this.foundByNameItems(matches.map(copyItem));
+        if (!matches.length) {
+          this.errorMessage('No item found for name ' + (this.findByNameQuery().trim() || '(blank)') + '.');
+        }
+      };
+
+      this.loadUpdateItem = () => {
+        this.clearMessages();
+        const id = normalizeId(this.updateIdQuery());
+        const item = id ? mockData.getItemById(id) : null;
+        this.updateLoadedItem(item ? copyItem(item) : null);
+        if (!item) {
+          resetForm(this.updateForm);
+          this.errorMessage('No item found for ID ' + (id || '(blank)') + '.');
+          return;
+        }
+
+        resetForm(this.updateForm, item);
+        this.statusMessage('Loaded item ' + item.id + ' for update.');
+      };
+
+      this.updateItem = () => {
+        this.clearMessages();
+        const loadedItem = this.updateLoadedItem();
+        if (!loadedItem) {
+          this.errorMessage('Load an item by ID before updating.');
+          return;
+        }
+
+        const payload = buildPayload(this.updateForm);
+        const validationMessage = validatePayload(payload);
+        if (validationMessage) {
+          this.errorMessage(validationMessage);
+          return;
+        }
+
+        const updatedItem = mockData.updateItem(loadedItem.id, payload);
+        if (!updatedItem) {
+          this.errorMessage('Item ' + loadedItem.id + ' was not found.');
+          return;
+        }
+
+        this.updateLoadedItem(copyItem(updatedItem));
         this.refreshItems();
+        this.statusMessage('Updated item ' + updatedItem.id + '.');
+      };
+
+      this.loadDeleteItem = () => {
+        this.clearMessages();
+        const id = normalizeId(this.deleteIdQuery());
+        const item = id ? mockData.getItemById(id) : null;
+        this.deleteCandidate(item ? copyItem(item) : null);
+        if (!item) {
+          this.errorMessage('No item found for ID ' + (id || '(blank)') + '.');
+          return;
+        }
+        this.statusMessage('Ready to delete item ' + item.id + '.');
+      };
+
+      this.deleteItem = () => {
+        this.clearMessages();
+        const candidate = this.deleteCandidate();
+        if (!candidate) {
+          this.errorMessage('Find an item by ID before deleting.');
+          return;
+        }
+
+        const deletedItem = mockData.deleteItem(candidate.id);
+        if (!deletedItem) {
+          this.errorMessage('Item ' + candidate.id + ' was not found.');
+          return;
+        }
+
+        this.deleteCandidate(null);
+        this.deleteIdQuery('');
+        this.refreshItems();
+        this.statusMessage('Deleted item ' + deletedItem.id + '.');
       };
 
       this.connected = () => {
@@ -178,6 +274,8 @@ define([
       this.transitionCompleted = () => {
         // Implement if needed
       };
+
+      this.refreshItems();
     }
 
     return AssetsViewModel;

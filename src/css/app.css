@@ -48,3 +48,115 @@ html[dir="rtl"] .demo-oracle-icon {
       transform:translate(-25%, -25%) scale(0.5)
   }
 }
+
+.stock-page {
+  max-width: 1120px;
+}
+
+.stock-control-row,
+.stock-search-row,
+.stock-button-row {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 16px 0;
+}
+
+.stock-control-row label,
+.stock-search-row label,
+.stock-form-grid label {
+  font-weight: 600;
+}
+
+.stock-control-row select,
+.stock-search-row input,
+.stock-form-grid input {
+  border: 1px solid #8f8f8f;
+  border-radius: 4px;
+  min-height: 36px;
+  padding: 6px 10px;
+}
+
+.stock-form-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  max-width: 760px;
+}
+
+.stock-form-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.stock-button-row button,
+.stock-search-row button {
+  border: 1px solid #6f6f6f;
+  border-radius: 4px;
+  min-height: 36px;
+  padding: 6px 14px;
+}
+
+.stock-danger-button {
+  border-color: #b3311f;
+  color: #b3311f;
+}
+
+.stock-message {
+  border-radius: 4px;
+  margin: 12px 0;
+  max-width: 760px;
+  padding: 10px 12px;
+}
+
+.stock-message-success {
+  background: #edf7ed;
+  border: 1px solid #8fbc8f;
+}
+
+.stock-message-error {
+  background: #fff1f0;
+  border: 1px solid #d67b70;
+}
+
+.stock-table {
+  border-collapse: collapse;
+  margin-top: 12px;
+  width: 100%;
+}
+
+.stock-table th,
+.stock-table td {
+  border: 1px solid #d7d7d7;
+  padding: 10px;
+  text-align: left;
+}
+
+.stock-table th {
+  background: #f6f6f6;
+}
+
+.stock-result {
+  border: 1px solid #d7d7d7;
+  border-radius: 4px;
+  margin-top: 16px;
+  max-width: 520px;
+  padding: 12px;
+}
+
+.stock-result dl {
+  display: grid;
+  gap: 8px 16px;
+  grid-template-columns: 140px 1fr;
+  margin: 0;
+}
+
+.stock-result dt {
+  font-weight: 600;
+}
+
+.stock-result dd {
+  margin: 0;
+}
