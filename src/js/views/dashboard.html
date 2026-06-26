@@ -1,0 +1,29 @@
+<!--
+ Copyright (c) 2014, 2026, Oracle and/or its affiliates.
+ Licensed under The Universal Permissive License (UPL), Version 1.0
+ as shown at https://oss.oracle.com/licenses/upl/
+ -->
+<div class="oj-hybrid-padding">
+  <h1>Dashboard</h1>
+
+  <div class="oj-flex oj-sm-margin-4x-bottom">
+    <div class="oj-flex-item oj-sm-12 oj-md-3 oj-sm-padding-2x">
+      <h2>Total Item Types</h2>
+      <p><oj-bind-text value="[[summary().totalItemTypes]]"></oj-bind-text></p>
+    </div>
+    <div class="oj-flex-item oj-sm-12 oj-md-3 oj-sm-padding-2x">
+      <h2>Total Units</h2>
+      <p><oj-bind-text value="[[summary().totalUnits]]"></oj-bind-text></p>
+    </div>
+    <div class="oj-flex-item oj-sm-12 oj-md-3 oj-sm-padding-2x">
+      <h2>Low Stock</h2>
+      <p><oj-bind-text value="[[summary().lowStockCount]]"></oj-bind-text></p>
+    </div>
+    <div class="oj-flex-item oj-sm-12 oj-md-3 oj-sm-padding-2x">
+      <h2>Out of Stock</h2>
+      <p><oj-bind-text value="[[summary().outOfStockCount]]"></oj-bind-text></p>
+    </div>
+  </div>
+
+  <my-dropdown-with-chart chart-type="bar" mobile-lock="false"></my-dropdown-with-chart>
+</div>
