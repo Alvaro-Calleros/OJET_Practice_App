@@ -36,9 +36,12 @@ define(['knockout', 'ojs/ojcontext', 'ojs/ojmodule-element-utils', 'ojs/ojknocko
       let navData = [
         { path: '', redirect: 'dashboard' },
         { path: 'dashboard', detail: { label: 'Dashboard', iconClass: 'oj-ux-ico-bar-chart' } },
-        { path: 'assets', detail: { label: 'Stock', iconClass: 'oj-ux-ico-server' } },
-        { path: 'employees', detail: { label: 'Low Stock', iconClass: 'oj-ux-ico-warning-s' } },
-        { path: 'history', detail: { label: 'About', iconClass: 'oj-ux-ico-information-s' } }
+        { path: 'stock', detail: { label: 'Stock', iconClass: 'oj-ux-ico-server' } },
+        { path: 'lowStock', detail: { label: 'Low Stock', iconClass: 'oj-ux-ico-warning-s' } },
+        { path: 'about', detail: { label: 'About', iconClass: 'oj-ux-ico-information-s' } },
+        { path: 'assets', redirect: 'stock' },
+        { path: 'employees', redirect: 'lowStock' },
+        { path: 'history', redirect: 'about' }
       ];
 
       // Router setup
@@ -53,7 +56,8 @@ define(['knockout', 'ojs/ojcontext', 'ojs/ojmodule-element-utils', 'ojs/ojknocko
 
       // Setup the navDataProvider with the routes, excluding the first redirected
       // route.
-      this.navDataProvider = new ArrayDataProvider(navData.slice(1), {keyAttributes: "path"});
+      const visibleNavData = navData.filter((route) => route.detail);
+      this.navDataProvider = new ArrayDataProvider(visibleNavData, {keyAttributes: "path"});
 
       // Drawer
       this.sideDrawerOn = ko.observable(false);
