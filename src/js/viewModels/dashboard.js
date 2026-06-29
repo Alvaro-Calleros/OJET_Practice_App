@@ -5,61 +5,71 @@
  * as shown at https://oss.oracle.com/licenses/upl/
  * @ignore
  */
-/*
- * Your dashboard ViewModel code goes here
- */
 define([
     'knockout',
     '../accUtils',
     '../data/mockData',
-    'my-dropdown-with-chart/loader'
+    'ojs/ojarraydataprovider',
+    'ojs/ojknockout',
+    'ojs/ojchart'
   ],
-  function (ko, accUtils, mockData) {
+  function (ko, accUtils, mockData, ArrayDataProvider) {
     function DashboardViewModel() {
       this.summary = ko.observable(mockData.getSummary());
+      this.categoryBreakdownItems = ko.observableArray([]);
+      this.locationItems = ko.observableArray([]);
+      this.categoryBreakdownDataProvider = new ArrayDataProvider(this.categoryBreakdownItems, {
+        keyAttributes: 'id'
+      });
+      this.locationDataProvider = new ArrayDataProvider(this.locationItems, {
+        keyAttributes: 'id'
+      });
 
-      this.refreshSummary = () => {
-        this.summary(mockData.getSummary());
+      this.chartValueStyle = {
+        fontSize: '12px',
+        fontWeight: '600'
       };
 
-      // Below are a set of the ViewModel methods invoked by the oj-module component.
-      // Please reference the oj-module jsDoc for additional information.
+      this.stackLabelStyle = {
+        fontSize: '12px',
+        fontWeight: '700'
+      };
 
-      /**
-       * Optional ViewModel method invoked after the View is inserted into the
-       * document DOM.  The application can put logic that requires the DOM being
-       * attached here.
-       * This method might be called multiple times - after the View is created
-       * and inserted into the DOM and after the View is reconnected
-       * after being disconnected.
-       */
+      this.categoryDataLabel = (context) => {
+        return context.value == null ? '' : String(context.value);
+      };
+
+      this.locationDataLabel = (context) => {
+        return context.value == null ? '' : String(context.value);
+      };
+
+      this.categoryStackLabel = (context) => {
+        return 'Total: ' + context.value;
+      };
+
+      this.refreshDashboard = () => {
+        this.summary(mockData.getSummary());
+        this.categoryBreakdownItems(mockData.getItemUnitsByCategory());
+        this.locationItems(mockData.getUnitsByLocation());
+      };
+
       this.connected = () => {
         accUtils.announce('Dashboard page loaded.', 'assertive');
-        document.title = "Dashboard";
-        this.refreshSummary();
+        document.title = 'Dashboard';
+        this.refreshDashboard();
       };
 
-      /**
-       * Optional ViewModel method invoked after the View is disconnected from the DOM.
-       */
       this.disconnected = () => {
         // Implement if needed
       };
 
-      /**
-       * Optional ViewModel method invoked after transition to the new View is complete.
-       * That includes any possible animation between the old and the new View.
-       */
       this.transitionCompleted = () => {
         // Implement if needed
       };
+
+      this.refreshDashboard();
     }
 
-    /*
-     * Returns an instance of the ViewModel providing one instance of the ViewModel. If needed,
-     * return a constructor for the ViewModel so that the ViewModel is constructed
-     * each time the view is displayed.
-     */
     return DashboardViewModel;
   }
 );

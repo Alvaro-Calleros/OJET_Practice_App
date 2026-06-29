@@ -49,6 +49,100 @@ html[dir="rtl"] .demo-oracle-icon {
   }
 }
 
+.dashboard-page {
+  max-width: 1180px;
+}
+
+.dashboard-page h1 {
+  font-size: 2rem;
+  line-height: 1.2;
+  margin: 0 0 20px;
+}
+
+.dashboard-summary-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  margin: 16px 0 36px;
+}
+
+.dashboard-summary-card {
+  border: 1px solid #d7d7d7;
+  border-radius: 4px;
+  padding: 14px 16px;
+}
+
+.dashboard-summary-card h2 {
+  color: #4f4f4f;
+  font-size: 0.82rem;
+  font-weight: 600;
+  line-height: 1.25;
+  margin: 0 0 10px;
+  text-transform: uppercase;
+}
+
+.dashboard-summary-card p {
+  color: #1f1f1f;
+  font-size: 2.35rem;
+  font-weight: 800;
+  line-height: 1.1;
+  margin: 0;
+}
+
+.dashboard-chart-grid {
+  display: grid;
+  gap: 28px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 4px;
+}
+
+.dashboard-chart-panel {
+  min-width: 0;
+}
+
+.dashboard-chart-panel h2 {
+  border-top: 1px solid #d7d7d7;
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.25;
+  margin: 0 0 14px;
+  padding-top: 18px;
+}
+
+.dashboard-chart {
+  height: 340px;
+  width: 100%;
+}
+
+@media (max-width: 760px) {
+  .dashboard-page h1 {
+    font-size: 1.7rem;
+  }
+
+  .dashboard-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-bottom: 28px;
+  }
+
+  .dashboard-summary-card p {
+    font-size: 2rem;
+  }
+
+  .dashboard-chart-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-chart {
+    height: 320px;
+  }
+}
+
+@media (max-width: 460px) {
+  .dashboard-summary-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .stock-page {
   max-width: 1120px;
 }
@@ -61,6 +155,18 @@ html[dir="rtl"] .demo-oracle-icon {
   flex-wrap: wrap;
   gap: 12px;
   margin: 16px 0;
+}
+
+.stock-primary-actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 16px 0 8px;
+}
+
+.stock-primary-actions oj-button.stock-action-active {
+  box-shadow: 0 0 0 2px #1f6fb2;
 }
 
 .stock-control-row label,

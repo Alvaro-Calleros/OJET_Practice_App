@@ -6,15 +6,46 @@
 <div class="oj-hybrid-padding stock-page">
   <h1>Stock</h1>
 
+  <div class="stock-primary-actions" aria-label="Stock primary actions">
+    <oj-button
+      id="stockListAction"
+      chroming="outlined"
+      data-bind="css: { 'stock-action-active': selectedAction() === 'list' }"
+      on-oj-action="[[showList]]">
+      List
+    </oj-button>
+    <oj-button
+      id="stockCreateAction"
+      chroming="outlined"
+      data-bind="css: { 'stock-action-active': selectedAction() === 'create' }"
+      on-oj-action="[[showCreate]]">
+      Create
+    </oj-button>
+    <oj-button
+      id="stockUpdateAction"
+      chroming="outlined"
+      data-bind="css: { 'stock-action-active': selectedAction() === 'update' }"
+      on-oj-action="[[showUpdate]]">
+      Update
+    </oj-button>
+    <oj-button
+      id="stockDeleteAction"
+      chroming="outlined"
+      data-bind="css: { 'stock-action-active': selectedAction() === 'delete' }"
+      on-oj-action="[[showDelete]]">
+      Delete
+    </oj-button>
+  </div>
+
   <div class="stock-control-row">
-    <label for="stockAction">Action</label>
+    <label for="stockSecondaryAction">Find</label>
     <select
-      id="stockAction"
-      data-bind="options: actionOptions,
+      id="stockSecondaryAction"
+      data-bind="options: secondaryActionOptions,
                  optionsText: 'label',
                  optionsValue: 'value',
-                 value: selectedAction,
-                 event: { change: selectAction }">
+                 value: secondaryAction,
+                 event: { change: selectSecondaryAction }">
     </select>
   </div>
 

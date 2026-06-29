@@ -11,11 +11,10 @@ define(
         'ojL10n!./resources/nls/my-dropdown-with-chart-strings',
         'ojs/ojcontext',
         'ojs/ojarraydataprovider',
-        'data/mockData',
         'ojs/ojknockout',
         'ojs/ojchart'
     ],
-    function (ko, componentStrings, Context, ArrayDataProvider, mockData) {
+    function (ko, componentStrings, Context, ArrayDataProvider) {
 
     function normalizeBoolean(value) {
         return value === true || value === 'true';
@@ -33,7 +32,7 @@ define(
         self.chartType = ko.observable('bar');
 
         self.unitsByCategoryDataProvider = ko.pureComputed(function () {
-            return new ArrayDataProvider(mockData.getUnitsByCategory(), {
+            return new ArrayDataProvider([], {
                 keyAttributes: 'id'
             });
         });

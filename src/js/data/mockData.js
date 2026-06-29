@@ -94,6 +94,33 @@ define([], function () {
     });
   }
 
+  function getItemUnitsByCategory() {
+    return stockItems.map((item) => {
+      return {
+        id: item.category + '-' + item.id,
+        series: item.name,
+        group: item.category,
+        value: item.quantity
+      };
+    });
+  }
+
+  function getUnitsByLocation() {
+    const counts = stockItems.reduce((totals, item) => {
+      totals[item.location] = (totals[item.location] || 0) + item.quantity;
+      return totals;
+    }, {});
+
+    return Object.keys(counts).map((location) => {
+      return {
+        id: location,
+        series: location,
+        group: 'Units',
+        value: counts[location]
+      };
+    });
+  }
+
   return {
     getItems: getItems,
     getItemById: getItemById,
@@ -102,6 +129,8 @@ define([], function () {
     deleteItem: deleteItem,
     getLowStockItems: getLowStockItems,
     getSummary: getSummary,
-    getUnitsByCategory: getUnitsByCategory
+    getUnitsByCategory: getUnitsByCategory,
+    getItemUnitsByCategory: getItemUnitsByCategory,
+    getUnitsByLocation: getUnitsByLocation
   };
 });
