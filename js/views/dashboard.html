@@ -3,27 +3,79 @@
  Licensed under The Universal Permissive License (UPL), Version 1.0
  as shown at https://oss.oracle.com/licenses/upl/
  -->
-<div class="oj-hybrid-padding">
+<div class="oj-hybrid-padding dashboard-page">
   <h1>Dashboard</h1>
 
-  <div class="oj-flex oj-sm-margin-4x-bottom">
-    <div class="oj-flex-item oj-sm-12 oj-md-3 oj-sm-padding-2x">
+  <div class="dashboard-summary-grid">
+    <section class="dashboard-summary-card">
       <h2>Total Item Types</h2>
       <p><oj-bind-text value="[[summary().totalItemTypes]]"></oj-bind-text></p>
-    </div>
-    <div class="oj-flex-item oj-sm-12 oj-md-3 oj-sm-padding-2x">
+    </section>
+    <section class="dashboard-summary-card">
       <h2>Total Units</h2>
       <p><oj-bind-text value="[[summary().totalUnits]]"></oj-bind-text></p>
-    </div>
-    <div class="oj-flex-item oj-sm-12 oj-md-3 oj-sm-padding-2x">
+    </section>
+    <section class="dashboard-summary-card">
       <h2>Low Stock</h2>
       <p><oj-bind-text value="[[summary().lowStockCount]]"></oj-bind-text></p>
-    </div>
-    <div class="oj-flex-item oj-sm-12 oj-md-3 oj-sm-padding-2x">
+    </section>
+    <section class="dashboard-summary-card">
       <h2>Out of Stock</h2>
       <p><oj-bind-text value="[[summary().outOfStockCount]]"></oj-bind-text></p>
-    </div>
+    </section>
   </div>
 
-  <my-dropdown-with-chart chart-type="bar" mobile-lock="false"></my-dropdown-with-chart>
+  <div class="dashboard-chart-grid">
+    <section class="dashboard-chart-panel">
+      <h2>Units by Category</h2>
+      <oj-chart
+        id="categoryBreakdownChart"
+        type="bar"
+        orientation="vertical"
+        stack="on"
+        stack-label="on"
+        stack-label-provider="[[categoryStackLabel]]"
+        data-label="[[categoryDataLabel]]"
+        data="[[categoryBreakdownDataProvider]]"
+        style-defaults.data-label-position="center"
+        style-defaults.data-label-style="[[chartValueStyle]]"
+        style-defaults.stack-label-style="[[stackLabelStyle]]"
+        animation-on-display="auto"
+        animation-on-data-change="auto"
+        hover-behavior="dim"
+        class="dashboard-chart">
+        <template slot="itemTemplate" data-oj-as="item">
+          <oj-chart-item
+            value="[[item.data.value]]"
+            group-id="[[ [item.data.group] ]]"
+            series-id="[[item.data.series]]">
+          </oj-chart-item>
+        </template>
+      </oj-chart>
+    </section>
+
+    <section class="dashboard-chart-panel">
+      <h2>Units by Location</h2>
+      <oj-chart
+        id="locationChart"
+        type="bar"
+        orientation="vertical"
+        data-label="[[locationDataLabel]]"
+        data="[[locationDataProvider]]"
+        style-defaults.data-label-position="outsideBarEdge"
+        style-defaults.data-label-style="[[chartValueStyle]]"
+        animation-on-display="auto"
+        animation-on-data-change="auto"
+        hover-behavior="dim"
+        class="dashboard-chart">
+        <template slot="itemTemplate" data-oj-as="item">
+          <oj-chart-item
+            value="[[item.data.value]]"
+            group-id="[[ [item.data.group] ]]"
+            series-id="[[item.data.series]]">
+          </oj-chart-item>
+        </template>
+      </oj-chart>
+    </section>
+  </div>
 </div>

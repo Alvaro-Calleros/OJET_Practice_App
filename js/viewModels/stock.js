@@ -9,7 +9,8 @@ define([
     'knockout',
     '../accUtils',
     '../data/mockData',
-    'ojs/ojknockout'
+    'ojs/ojknockout',
+    'ojs/ojbutton'
   ],
   function (ko, accUtils, mockData) {
     function AssetsViewModel() {
@@ -84,16 +85,21 @@ define([
         return '';
       };
 
-      this.actionOptions = [
+      this.primaryActionOptions = [
         { value: 'list', label: 'List' },
         { value: 'create', label: 'Create' },
-        { value: 'findById', label: 'Find by ID' },
-        { value: 'findByName', label: 'Find by Name' },
         { value: 'update', label: 'Update' },
         { value: 'delete', label: 'Delete' }
       ];
 
+      this.secondaryActionOptions = [
+        { value: '', label: 'Find actions' },
+        { value: 'findById', label: 'Find by ID' },
+        { value: 'findByName', label: 'Find by Name' }
+      ];
+
       this.selectedAction = ko.observable('list');
+      this.secondaryAction = ko.observable('');
       this.items = ko.observableArray([]);
       this.statusMessage = ko.observable('');
       this.errorMessage = ko.observable('');
@@ -145,6 +151,37 @@ define([
         this.updateLoadedItem(null);
         this.deleteCandidate(null);
         this.refreshItems();
+      };
+
+      this.setAction = (action) => {
+        this.selectedAction(action);
+        if (action !== 'findById' && action !== 'findByName') {
+          this.secondaryAction('');
+        }
+        this.selectAction();
+      };
+
+      this.showList = () => {
+        this.setAction('list');
+      };
+
+      this.showCreate = () => {
+        this.setAction('create');
+      };
+
+      this.showUpdate = () => {
+        this.setAction('update');
+      };
+
+      this.showDelete = () => {
+        this.setAction('delete');
+      };
+
+      this.selectSecondaryAction = () => {
+        const action = this.secondaryAction();
+        if (action) {
+          this.setAction(action);
+        }
       };
 
       this.resetCreateForm = () => {
